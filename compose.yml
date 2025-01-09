@@ -2,11 +2,10 @@ services:
   go:
     container_name: go-huma
     volumes:
-      - ./:/app/
+      - ./app/:/app/
     tty: true
     build:
-      context: ./
-      dockerfile: Dockerfile
+      dockerfile: ./app/Dockerfile
       target: dev
     ports:
       - 8080:8080
