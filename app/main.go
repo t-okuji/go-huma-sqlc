@@ -3,11 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/danielgtaylor/huma/v2/humacli"
+	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
+	"github.com/t-okuji/learn-huma/sqlc"
 
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )
@@ -22,6 +27,10 @@ type GreetingOutput struct {
 	Body struct {
 		Message string `json:"message" example:"Hello, world!" doc:"Greeting message"`
 	}
+}
+
+type Author struct {
+	Body []sqlc.Author
 }
 
 // ReviewInput represents the review operation request.
@@ -47,6 +56,46 @@ func addRoutes(api huma.API) {
 	}) (*GreetingOutput, error) {
 		resp := &GreetingOutput{}
 		resp.Body.Message = fmt.Sprintf("Hello, %s!", input.Name)
+		return resp, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "get-authors",
+		Method:      http.MethodGet,
+		Path:        "/authors",
+		Summary:     "Get Authors",
+		Description: "Get Authors.",
+		Tags:        []string{"Authors"},
+	}, func(ctx context.Context, _ *struct {
+	}) (*Author, error) {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+			os.Getenv("POSTGRES_USER"),
+			os.Getenv("POSTGRES_PASSWORD"),
+			os.Getenv("POSTGRES_HOST"),
+			os.Getenv("POSTGRES_PORT"),
+			os.Getenv("POSTGRES_DATABASE"),
+		)
+		conn, err := pgx.Connect(ctx, dsn)
+		resp := &Author{}
+		if err != nil {
+			fmt.Println(err)
+			return resp, err
+		}
+		defer conn.Close(ctx)
+
+		queries := sqlc.New(conn)
+
+		authors, err := queries.ListAuthors(ctx)
+		if err != nil {
+			return resp, err
+		}
+
+		resp.Body = authors
+
 		return resp, nil
 	})
 
