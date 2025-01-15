@@ -8,6 +8,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/danielgtaylor/huma/v2/humacli"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/t-okuji/learn-huma/db"
 	"github.com/t-okuji/learn-huma/db/sqlc"
 
@@ -98,12 +100,21 @@ func addRoutes(api huma.API) {
 	})
 }
 
+func LogMiddleware(ctx huma.Context, next func(huma.Context)) {
+	log.Info().Dict("api", zerolog.Dict().
+		Str("method", ctx.Operation().Method).
+		Str("path", ctx.Operation().Path),
+	).Msg("")
+	next(ctx)
+}
+
 func main() {
 	// Create a CLI app which takes a port option.
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		// Create a new router & API
 		router := http.NewServeMux()
 		api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
+		api.UseMiddleware(LogMiddleware)
 
 		addRoutes(api)
 
