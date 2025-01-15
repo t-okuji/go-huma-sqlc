@@ -3,16 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/danielgtaylor/huma/v2/humacli"
-	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
-	"github.com/t-okuji/learn-huma/sqlc"
+	"github.com/t-okuji/learn-huma/db"
+	"github.com/t-okuji/learn-huma/db/sqlc"
 
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )
@@ -68,30 +65,18 @@ func addRoutes(api huma.API) {
 		Tags:        []string{"Authors"},
 	}, func(ctx context.Context, _ *struct {
 	}) (*Author, error) {
-		err := godotenv.Load()
+		conn, err := db.ConnectDB(ctx)
 		if err != nil {
-			log.Fatalln(err)
+			return nil, err
 		}
-		dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
-			os.Getenv("POSTGRES_USER"),
-			os.Getenv("POSTGRES_PASSWORD"),
-			os.Getenv("POSTGRES_HOST"),
-			os.Getenv("POSTGRES_PORT"),
-			os.Getenv("POSTGRES_DATABASE"),
-		)
-		conn, err := pgx.Connect(ctx, dsn)
-		resp := &Author{}
-		if err != nil {
-			fmt.Println(err)
-			return resp, err
-		}
-		defer conn.Close(ctx)
+		defer db.CloseDB(ctx, conn)
 
+		resp := &Author{}
 		queries := sqlc.New(conn)
 
 		authors, err := queries.ListAuthors(ctx)
 		if err != nil {
-			return resp, err
+			return nil, err
 		}
 
 		resp.Body = authors
