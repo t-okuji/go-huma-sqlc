@@ -12,6 +12,7 @@ type IAuthorUsecase interface {
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
 	CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error)
 	UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) (sqlc.Author, error)
+	DeleteAuthor(ctx context.Context, id int64) error
 }
 
 type authorUsecase struct {
@@ -52,4 +53,12 @@ func (as *authorUsecase) UpdateAuthor(ctx context.Context, input sqlc.UpdateAuth
 		return sqlc.Author{}, err
 	}
 	return result, nil
+}
+
+func (as *authorUsecase) DeleteAuthor(ctx context.Context, id int64) error {
+	err := as.ar.DeleteAuthor(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

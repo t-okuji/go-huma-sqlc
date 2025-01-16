@@ -12,6 +12,7 @@ type IAuthorRepository interface {
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
 	CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error)
 	UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) (sqlc.Author, error)
+	DeleteAuthor(ctx context.Context, id int64) error
 }
 
 type authorRepository struct {
@@ -52,4 +53,12 @@ func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateA
 		return sqlc.Author{}, err
 	}
 	return result, nil
+}
+
+func (ar *authorRepository) DeleteAuthor(ctx context.Context, id int64) error {
+	err := ar.queries.DeleteAuthor(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

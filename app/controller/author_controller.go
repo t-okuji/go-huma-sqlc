@@ -38,6 +38,7 @@ type IAuthorController interface {
 	}) (*AuthorsOutput, error)
 	CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error)
 	UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*AuthorOutput, error)
+	DeleteAuthor(ctx context.Context, input *GetAuthorInput) (*struct{}, error)
 }
 
 type authorController struct {
@@ -97,4 +98,13 @@ func (ah *authorController) UpdateAuthor(ctx context.Context, input *UpdateAutho
 
 	resp.Body = result
 	return resp, nil
+}
+
+func (ah *authorController) DeleteAuthor(ctx context.Context, input *GetAuthorInput) (*struct{}, error) {
+	err := ah.as.DeleteAuthor(ctx, input.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

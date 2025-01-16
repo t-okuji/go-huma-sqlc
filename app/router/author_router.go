@@ -41,6 +41,15 @@ func NewAuthorRouter(api huma.API, ac controller.IAuthorController) {
 		Path:          "/author",
 		Summary:       "Update a author",
 		Tags:          []string{"Authors"},
-		DefaultStatus: http.StatusCreated,
+		DefaultStatus: http.StatusOK,
 	}, ac.UpdateAuthor)
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "delete-author",
+		Method:        http.MethodDelete,
+		Path:          "/author/{id}",
+		Summary:       "Delete a author",
+		Tags:          []string{"Authors"},
+		DefaultStatus: http.StatusNoContent,
+	}, ac.DeleteAuthor)
 }
