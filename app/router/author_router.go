@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -16,8 +15,5 @@ func NewAuthorRouter(api huma.API, ac controller.IAuthorController) {
 		Summary:     "Get Authors",
 		Description: "Get Authors.",
 		Tags:        []string{"Authors"},
-	}, func(ctx context.Context, _ *struct {
-	}) (*controller.AuthorsOutput, error) {
-		return ac.ListAuthors(ctx)
-	})
+	}, ac.ListAuthors)
 }
