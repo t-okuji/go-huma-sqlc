@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAuthor = `-- name: CreateAuthor :one
@@ -21,8 +19,8 @@ RETURNING id, name, bio
 `
 
 type CreateAuthorParams struct {
-	Name string      `json:"name"`
-	Bio  pgtype.Text `json:"bio"`
+	Name string  `json:"name"`
+	Bio  *string `json:"bio"`
 }
 
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error) {
@@ -87,9 +85,9 @@ WHERE id = $1
 `
 
 type UpdateAuthorParams struct {
-	ID   int64       `json:"id"`
-	Name string      `json:"name"`
-	Bio  pgtype.Text `json:"bio"`
+	ID   int64   `json:"id"`
+	Name string  `json:"name"`
+	Bio  *string `json:"bio"`
 }
 
 func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error {

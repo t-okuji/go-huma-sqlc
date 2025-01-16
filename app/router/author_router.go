@@ -25,4 +25,13 @@ func NewAuthorRouter(api huma.API, ac controller.IAuthorController) {
 		Description: "Get authors.",
 		Tags:        []string{"Authors"},
 	}, ac.ListAuthors)
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "post-author",
+		Method:        http.MethodPost,
+		Path:          "/author",
+		Summary:       "Post a author",
+		Tags:          []string{"Authors"},
+		DefaultStatus: http.StatusCreated,
+	}, ac.CreateAuthor)
 }

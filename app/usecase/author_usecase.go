@@ -10,6 +10,7 @@ import (
 type IAuthorUsecase interface {
 	GetAuthor(ctx context.Context, id int64) (sqlc.Author, error)
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
+	CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error)
 }
 
 type authorUsecase struct {
@@ -32,6 +33,14 @@ func (as *authorUsecase) ListAuthors(ctx context.Context) ([]sqlc.Author, error)
 	result, err := as.ar.ListAuthors(ctx)
 	if err != nil {
 		return nil, err
+	}
+	return result, nil
+}
+
+func (as *authorUsecase) CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error) {
+	result, err := as.ar.CreateAuthor(ctx, input)
+	if err != nil {
+		return sqlc.Author{}, err
 	}
 	return result, nil
 }

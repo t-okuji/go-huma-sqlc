@@ -10,6 +10,7 @@ import (
 type IAuthorRepository interface {
 	GetAuthor(ctx context.Context, id int64) (sqlc.Author, error)
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
+	CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error)
 }
 
 type authorRepository struct {
@@ -32,6 +33,14 @@ func (ar *authorRepository) ListAuthors(ctx context.Context) ([]sqlc.Author, err
 	result, err := ar.queries.ListAuthors(ctx)
 	if err != nil {
 		return nil, err
+	}
+	return result, nil
+}
+
+func (ar *authorRepository) CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error) {
+	result, err := ar.queries.CreateAuthor(ctx, input)
+	if err != nil {
+		return sqlc.Author{}, err
 	}
 	return result, nil
 }
