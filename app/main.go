@@ -37,7 +37,7 @@ func LogMiddleware(ctx huma.Context, next func(huma.Context)) {
 
 func main() {
 	ctx := context.Background()
-	conn, err := db.ConnectDB(ctx)
+	conn, err := db.NewDB(ctx)
 	if err != nil {
 		log.Err(err).Msg("")
 	}

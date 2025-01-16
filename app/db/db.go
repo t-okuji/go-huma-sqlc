@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func ConnectDB(ctx context.Context) (*pgx.Conn, error) {
+func NewDB(ctx context.Context) (*pgx.Conn, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, err
