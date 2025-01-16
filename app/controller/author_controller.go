@@ -16,6 +16,13 @@ type CreateAuthorInput struct {
 		Bio  *string `json:"bio,omitempty" doc:"Author bio"`
 	}
 }
+type UpdateAuthorInput struct {
+	Body struct {
+		Id   int64   `path:"id" required:"true" example:"1" doc:"Author id"`
+		Name string  `json:"name" required:"true" doc:"Author name"`
+		Bio  *string `json:"bio,omitempty" doc:"Author bio"`
+	}
+}
 type AuthorOutput struct {
 	Body sqlc.Author `json:"author"`
 }
@@ -30,6 +37,7 @@ type IAuthorController interface {
 	ListAuthors(ctx context.Context, _ *struct {
 	}) (*AuthorsOutput, error)
 	CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error)
+	UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*struct{}, error)
 }
 
 type authorController struct {
@@ -76,4 +84,14 @@ func (ah *authorController) CreateAuthor(ctx context.Context, input *CreateAutho
 
 	resp.Body = result
 	return resp, nil
+}
+
+func (ah *authorController) UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*struct{}, error) {
+	body := sqlc.UpdateAuthorParams{ID: input.Body.Id, Name: input.Body.Name, Bio: input.Body.Bio}
+	err := ah.as.UpdateAuthor(ctx, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
