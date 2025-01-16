@@ -11,7 +11,7 @@ type IAuthorRepository interface {
 	GetAuthor(ctx context.Context, id int64) (sqlc.Author, error)
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
 	CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error)
-	UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) error
+	UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) (sqlc.Author, error)
 }
 
 type authorRepository struct {
@@ -46,10 +46,10 @@ func (ar *authorRepository) CreateAuthor(ctx context.Context, input sqlc.CreateA
 	return result, nil
 }
 
-func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) error {
-	err := ar.queries.UpdateAuthor(ctx, input)
+func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) (sqlc.Author, error) {
+	result, err := ar.queries.UpdateAuthor(ctx, input)
 	if err != nil {
-		return err
+		return sqlc.Author{}, err
 	}
-	return nil
+	return result, nil
 }

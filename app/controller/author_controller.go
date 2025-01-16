@@ -37,7 +37,7 @@ type IAuthorController interface {
 	ListAuthors(ctx context.Context, _ *struct {
 	}) (*AuthorsOutput, error)
 	CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error)
-	UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*struct{}, error)
+	UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*AuthorOutput, error)
 }
 
 type authorController struct {
@@ -86,12 +86,15 @@ func (ah *authorController) CreateAuthor(ctx context.Context, input *CreateAutho
 	return resp, nil
 }
 
-func (ah *authorController) UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*struct{}, error) {
+func (ah *authorController) UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*AuthorOutput, error) {
 	body := sqlc.UpdateAuthorParams{ID: input.Body.Id, Name: input.Body.Name, Bio: input.Body.Bio}
-	err := ah.as.UpdateAuthor(ctx, body)
+	result, err := ah.as.UpdateAuthor(ctx, body)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	resp := &AuthorOutput{}
+
+	resp.Body = result
+	return resp, nil
 }
