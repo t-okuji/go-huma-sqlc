@@ -28,8 +28,10 @@ type GreetingOutput struct {
 	}
 }
 
-type Author struct {
-	Body []sqlc.Author
+type AuthorsOutput struct {
+	Body struct {
+		Authors []sqlc.Author `json:"authors"`
+	}
 }
 
 // ReviewInput represents the review operation request.
@@ -66,14 +68,14 @@ func addRoutes(api huma.API) {
 		Description: "Get Authors.",
 		Tags:        []string{"Authors"},
 	}, func(ctx context.Context, _ *struct {
-	}) (*Author, error) {
+	}) (*AuthorsOutput, error) {
 		conn, err := db.ConnectDB(ctx)
 		if err != nil {
 			return nil, err
 		}
 		defer db.CloseDB(ctx, conn)
 
-		resp := &Author{}
+		resp := &AuthorsOutput{}
 		queries := sqlc.New(conn)
 
 		authors, err := queries.ListAuthors(ctx)
@@ -81,7 +83,7 @@ func addRoutes(api huma.API) {
 			return nil, err
 		}
 
-		resp.Body = authors
+		resp.Body.Authors = authors
 
 		return resp, nil
 	})
