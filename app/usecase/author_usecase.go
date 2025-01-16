@@ -8,6 +8,7 @@ import (
 )
 
 type IAuthorUsecase interface {
+	GetAuthor(ctx context.Context, id int64) (sqlc.Author, error)
 	ListAuthors(ctx context.Context) ([]sqlc.Author, error)
 }
 
@@ -17,6 +18,14 @@ type authorUsecase struct {
 
 func NewAuthorUsecase(ar repository.IAuthorRepository) IAuthorUsecase {
 	return &authorUsecase{ar}
+}
+
+func (as *authorUsecase) GetAuthor(ctx context.Context, id int64) (sqlc.Author, error) {
+	result, err := as.ar.GetAuthor(ctx, id)
+	if err != nil {
+		return sqlc.Author{}, err
+	}
+	return result, nil
 }
 
 func (as *authorUsecase) ListAuthors(ctx context.Context) ([]sqlc.Author, error) {

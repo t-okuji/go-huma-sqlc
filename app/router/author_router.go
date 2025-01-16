@@ -9,11 +9,20 @@ import (
 
 func NewAuthorRouter(api huma.API, ac controller.IAuthorController) {
 	huma.Register(api, huma.Operation{
+		OperationID: "get-author",
+		Method:      http.MethodGet,
+		Path:        "/author/{id}",
+		Summary:     "Get an author",
+		Description: "Get an author by id.",
+		Tags:        []string{"Authors"},
+	}, ac.GetAuthor)
+
+	huma.Register(api, huma.Operation{
 		OperationID: "get-authors",
 		Method:      http.MethodGet,
 		Path:        "/authors",
-		Summary:     "Get Authors",
-		Description: "Get Authors.",
+		Summary:     "Get authors",
+		Description: "Get authors.",
 		Tags:        []string{"Authors"},
 	}, ac.ListAuthors)
 }
