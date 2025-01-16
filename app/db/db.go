@@ -7,12 +7,12 @@ import (
 	"os"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 )
 
-func NewDB(ctx context.Context) (*pgx.Conn, error) {
+func NewDB(ctx context.Context) (*pgxpool.Pool, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func NewDB(ctx context.Context) (*pgx.Conn, error) {
 		os.Getenv("POSTGRES_PORT"),
 		os.Getenv("POSTGRES_DATABASE"),
 	)
-	conn, err := pgx.Connect(ctx, dsn)
+	conn, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		log.Err(err).Msg("")
 		return nil, huma.Error500InternalServerError("", errors.New("failed to connect to DB"))
@@ -33,9 +33,6 @@ func NewDB(ctx context.Context) (*pgx.Conn, error) {
 	return conn, nil
 }
 
-func CloseDB(ctx context.Context, conn *pgx.Conn) {
-	if err := conn.Close(ctx); err != nil {
-		log.Err(err).Msg("")
-	}
-	fmt.Println("Closed")
+func CloseDB(ctx context.Context, conn *pgxpool.Pool) {
+	conn.Close()
 }

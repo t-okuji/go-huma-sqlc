@@ -5,6 +5,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/t-okuji/learn-huma/db/sqlc"
 )
 
@@ -20,7 +21,7 @@ type authorRepository struct {
 	queries *sqlc.Queries
 }
 
-func NewAuthorRepository(db *pgx.Conn) IAuthorRepository {
+func NewAuthorRepository(db *pgxpool.Pool) IAuthorRepository {
 	return &authorRepository{queries: sqlc.New(db)}
 }
 

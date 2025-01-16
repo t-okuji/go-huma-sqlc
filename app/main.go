@@ -56,11 +56,16 @@ func main() {
 
 		router.NewAuthorRouter(api, authorController)
 
+		server := http.Server{
+			Addr:    fmt.Sprintf(":%d", options.Port),
+			Handler: api_router,
+		}
+
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
 			fmt.Printf("Starting server on port %d...\n", options.Port)
 			// Start the server!
-			http.ListenAndServe(fmt.Sprintf(":%d", options.Port), api_router)
+			server.ListenAndServe()
 		})
 	})
 
