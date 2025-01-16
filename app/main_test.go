@@ -11,7 +11,7 @@ import (
 func TestGetGreeting(t *testing.T) {
 	_, api := humatest.New(t)
 
-	addRoutes(api)
+	sampleRoutes(api)
 
 	resp := api.Get("/greeting/world")
 
@@ -30,7 +30,7 @@ func TestGetGreeting(t *testing.T) {
 func TestPutReview(t *testing.T) {
 	_, api := humatest.New(t)
 
-	addRoutes(api)
+	sampleRoutes(api)
 
 	resp := api.Post("/reviews", map[string]any{
 		"author": "daniel",
@@ -43,7 +43,7 @@ func TestPutReview(t *testing.T) {
 func TestPutReviewError(t *testing.T) {
 	_, api := humatest.New(t)
 
-	addRoutes(api)
+	sampleRoutes(api)
 
 	resp := api.Post("/reviews", map[string]any{
 		"rating": 10,

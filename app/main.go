@@ -10,8 +10,11 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/t-okuji/learn-huma/controller"
 	"github.com/t-okuji/learn-huma/db"
-	"github.com/t-okuji/learn-huma/db/sqlc"
+	"github.com/t-okuji/learn-huma/repository"
+	"github.com/t-okuji/learn-huma/router"
+	"github.com/t-okuji/learn-huma/usecase"
 
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )
@@ -28,12 +31,6 @@ type GreetingOutput struct {
 	}
 }
 
-type AuthorsOutput struct {
-	Body struct {
-		Authors []sqlc.Author `json:"authors"`
-	}
-}
-
 // ReviewInput represents the review operation request.
 type ReviewInput struct {
 	Body struct {
@@ -43,7 +40,7 @@ type ReviewInput struct {
 	}
 }
 
-func addRoutes(api huma.API) {
+func sampleRoutes(api huma.API) {
 	// Register GET /greeting/{name} handler.
 	huma.Register(api, huma.Operation{
 		OperationID: "get-greeting",
@@ -57,34 +54,6 @@ func addRoutes(api huma.API) {
 	}) (*GreetingOutput, error) {
 		resp := &GreetingOutput{}
 		resp.Body.Message = fmt.Sprintf("Hello, %s!", input.Name)
-		return resp, nil
-	})
-
-	huma.Register(api, huma.Operation{
-		OperationID: "get-authors",
-		Method:      http.MethodGet,
-		Path:        "/authors",
-		Summary:     "Get Authors",
-		Description: "Get Authors.",
-		Tags:        []string{"Authors"},
-	}, func(ctx context.Context, _ *struct {
-	}) (*AuthorsOutput, error) {
-		conn, err := db.ConnectDB(ctx)
-		if err != nil {
-			return nil, err
-		}
-		defer db.CloseDB(ctx, conn)
-
-		resp := &AuthorsOutput{}
-		queries := sqlc.New(conn)
-
-		authors, err := queries.ListAuthors(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		resp.Body.Authors = authors
-
 		return resp, nil
 	})
 
@@ -111,20 +80,33 @@ func LogMiddleware(ctx huma.Context, next func(huma.Context)) {
 }
 
 func main() {
+	ctx := context.Background()
+	conn, err := db.ConnectDB(ctx)
+	if err != nil {
+		log.Err(err).Msg("")
+	}
+	defer db.CloseDB(ctx, conn)
+
+	authorRepository := repository.NewAuthorRepository(conn)
+	authorUsecase := usecase.NewAuthorUsecase(authorRepository)
+	authorController := controller.NewAuthorController(authorUsecase)
+
 	// Create a CLI app which takes a port option.
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		// Create a new router & API
-		router := http.NewServeMux()
-		api := humago.New(router, huma.DefaultConfig("My API", "1.0.0"))
+		api_router := http.NewServeMux()
+		api := humago.New(api_router, huma.DefaultConfig("My API", "1.0.0"))
 		api.UseMiddleware(LogMiddleware)
 
-		addRoutes(api)
+		sampleRoutes(api)
+
+		router.NewAuthorRouter(api, authorController)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
 			fmt.Printf("Starting server on port %d...\n", options.Port)
 			// Start the server!
-			http.ListenAndServe(fmt.Sprintf(":%d", options.Port), router)
+			http.ListenAndServe(fmt.Sprintf(":%d", options.Port), api_router)
 		})
 	})
 
