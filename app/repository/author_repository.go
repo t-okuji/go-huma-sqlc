@@ -2,9 +2,13 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog/log"
 	"github.com/t-okuji/learn-huma/db/sqlc"
 )
 
@@ -17,11 +21,12 @@ type IAuthorRepository interface {
 }
 
 type authorRepository struct {
+	pool    *pgxpool.Pool
 	queries *sqlc.Queries
 }
 
-func NewAuthorRepository(db *pgx.Conn) IAuthorRepository {
-	return &authorRepository{queries: sqlc.New(db)}
+func NewAuthorRepository(db *pgxpool.Pool) IAuthorRepository {
+	return &authorRepository{pool: db, queries: sqlc.New(db)}
 }
 
 func (ar *authorRepository) GetAuthor(ctx context.Context, id int64) (sqlc.Author, error) {
@@ -31,6 +36,10 @@ func (ar *authorRepository) GetAuthor(ctx context.Context, id int64) (sqlc.Autho
 	case err == pgx.ErrNoRows:
 		return sqlc.Author{}, huma.Error404NotFound("", err)
 	case err != nil:
+		var pgErr *pgconn.ConnectError
+		if errors.As(err, &pgErr) {
+			return sqlc.Author{}, errors.New("failed to connect to database")
+		}
 		return sqlc.Author{}, err
 	default:
 		return result, nil
@@ -39,28 +48,56 @@ func (ar *authorRepository) GetAuthor(ctx context.Context, id int64) (sqlc.Autho
 
 func (ar *authorRepository) ListAuthors(ctx context.Context) ([]sqlc.Author, error) {
 	result, err := ar.queries.ListAuthors(ctx)
+
 	if err != nil {
+		var pgErr *pgconn.ConnectError
+		if errors.As(err, &pgErr) {
+			return nil, errors.New("failed to connect to database")
+		}
 		return nil, err
 	}
 	return result, nil
 }
 
 func (ar *authorRepository) CreateAuthor(ctx context.Context, input sqlc.CreateAuthorParams) (sqlc.Author, error) {
-	result, err := ar.queries.CreateAuthor(ctx, input)
+	tx, err := ar.pool.Begin(ctx)
+	if err != nil {
+		var pgErr *pgconn.ConnectError
+		if errors.As(err, &pgErr) {
+			return sqlc.Author{}, errors.New("failed to connect to database")
+		}
+		return sqlc.Author{}, err
+	}
+	defer tx.Rollback(ctx)
+	result, err := ar.queries.WithTx(tx).CreateAuthor(ctx, input)
 	if err != nil {
 		return sqlc.Author{}, err
 	}
+	tx.Commit(ctx)
 	return result, nil
 }
 
 func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateAuthorParams) (sqlc.Author, error) {
-	result, err := ar.queries.UpdateAuthor(ctx, input)
+	tx, err := ar.pool.Begin(ctx)
+
+	if err != nil {
+		var pgErr *pgconn.ConnectError
+		if errors.As(err, &pgErr) {
+			return sqlc.Author{}, errors.New("failed to connect to database")
+		}
+		return sqlc.Author{}, err
+	}
+	defer tx.Rollback(ctx)
+	defer log.Info().Msg("rollback")
+
+	result, err := ar.queries.WithTx(tx).UpdateAuthor(ctx, input)
 	switch {
 	case err == pgx.ErrNoRows:
 		return sqlc.Author{}, huma.Error404NotFound("", err)
 	case err != nil:
 		return sqlc.Author{}, err
 	default:
+		tx.Commit(ctx)
 		return result, nil
 	}
 }
@@ -68,6 +105,10 @@ func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateA
 func (ar *authorRepository) DeleteAuthor(ctx context.Context, id int64) error {
 	err := ar.queries.DeleteAuthor(ctx, id)
 	if err != nil {
+		var pgErr *pgconn.ConnectError
+		if errors.As(err, &pgErr) {
+			return errors.New("failed to connect to database")
+		}
 		return err
 	}
 	return nil

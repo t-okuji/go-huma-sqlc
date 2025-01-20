@@ -37,11 +37,11 @@ func LogMiddleware(ctx huma.Context, next func(huma.Context)) {
 
 func main() {
 	ctx := context.Background()
-	conn, err := db.ConnectDB(ctx)
+	conn, err := db.NewPool(ctx)
 	if err != nil {
 		log.Err(err).Msg("")
 	}
-	defer db.CloseDB(ctx, conn)
+	defer db.ClosePool(ctx, conn)
 
 	authorRepository := repository.NewAuthorRepository(conn)
 	authorUsecase := usecase.NewAuthorUsecase(authorRepository)
@@ -56,11 +56,16 @@ func main() {
 
 		router.NewAuthorRouter(api, authorController)
 
+		server := http.Server{
+			Addr:    fmt.Sprintf(":%d", options.Port),
+			Handler: api_router,
+		}
+
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
 			fmt.Printf("Starting server on port %d...\n", options.Port)
 			// Start the server!
-			http.ListenAndServe(fmt.Sprintf(":%d", options.Port), api_router)
+			server.ListenAndServe()
 		})
 	})
 
