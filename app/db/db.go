@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewDB(ctx context.Context) (*pgxpool.Pool, error) {
+func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return nil, err
@@ -29,10 +29,13 @@ func NewDB(ctx context.Context) (*pgxpool.Pool, error) {
 		log.Err(err).Msg("")
 		return nil, huma.Error500InternalServerError("", errors.New("failed to connect to DB"))
 	}
+	if err := conn.Ping(ctx); err != nil {
+		log.Err(err).Msg("")
+	}
 	fmt.Println("Connected")
 	return conn, nil
 }
 
-func CloseDB(ctx context.Context, conn *pgxpool.Pool) {
+func ClosePool(ctx context.Context, conn *pgxpool.Pool) {
 	conn.Close()
 }

@@ -37,11 +37,11 @@ func LogMiddleware(ctx huma.Context, next func(huma.Context)) {
 
 func main() {
 	ctx := context.Background()
-	conn, err := db.NewDB(ctx)
+	conn, err := db.NewPool(ctx)
 	if err != nil {
 		log.Err(err).Msg("")
 	}
-	defer db.CloseDB(ctx, conn)
+	defer db.ClosePool(ctx, conn)
 
 	authorRepository := repository.NewAuthorRepository(conn)
 	authorUsecase := usecase.NewAuthorUsecase(authorRepository)
