@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/t-okuji/learn-huma/controller"
+	"github.com/t-okuji/go-huma-sqlc/controller"
 )
 
 func NewAuthorRouter(api huma.API, ac controller.IAuthorController) {

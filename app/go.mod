@@ -1,4 +1,4 @@
-module github.com/t-okuji/learn-huma
+module github.com/t-okuji/go-huma-sqlc
 
 go 1.23.4
 

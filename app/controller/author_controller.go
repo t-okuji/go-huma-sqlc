@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 
-	"github.com/t-okuji/learn-huma/db/sqlc"
-	"github.com/t-okuji/learn-huma/usecase"
+	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
+	"github.com/t-okuji/go-huma-sqlc/usecase"
 )
 
 type GetAuthorInput struct {

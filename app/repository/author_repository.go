@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
-	"github.com/t-okuji/learn-huma/db/sqlc"
+	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
 )
 
 type IAuthorRepository interface {

@@ -11,11 +11,11 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/t-okuji/learn-huma/controller"
-	"github.com/t-okuji/learn-huma/db"
-	"github.com/t-okuji/learn-huma/repository"
-	"github.com/t-okuji/learn-huma/router"
-	"github.com/t-okuji/learn-huma/usecase"
+	"github.com/t-okuji/go-huma-sqlc/controller"
+	"github.com/t-okuji/go-huma-sqlc/db"
+	"github.com/t-okuji/go-huma-sqlc/repository"
+	"github.com/t-okuji/go-huma-sqlc/router"
+	"github.com/t-okuji/go-huma-sqlc/usecase"
 
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )

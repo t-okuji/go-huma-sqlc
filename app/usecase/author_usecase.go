@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/t-okuji/learn-huma/db/sqlc"
-	"github.com/t-okuji/learn-huma/repository"
+	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
+	"github.com/t-okuji/go-huma-sqlc/repository"
 )
 
 type IAuthorUsecase interface {
