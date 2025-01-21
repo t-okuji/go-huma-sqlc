@@ -22,7 +22,7 @@ func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 		os.Getenv("POSTGRES_PASSWORD"),
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_DATABASE"),
+		os.Getenv("POSTGRES_DB"),
 	)
 	conn, err := pgxpool.New(ctx, dsn)
 	if err != nil {
