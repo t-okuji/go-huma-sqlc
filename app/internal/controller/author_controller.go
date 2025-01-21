@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
-	"github.com/t-okuji/go-huma-sqlc/usecase"
+	"github.com/t-okuji/go-huma-sqlc/internal/usecase"
 )
 
 type GetAuthorInput struct {

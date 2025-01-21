@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
-	"github.com/t-okuji/go-huma-sqlc/repository"
+	"github.com/t-okuji/go-huma-sqlc/internal/repository"
 )
 
 type IAuthorUsecase interface {
