@@ -14,7 +14,7 @@ import (
 
 func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 	err := godotenv.Load()
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
