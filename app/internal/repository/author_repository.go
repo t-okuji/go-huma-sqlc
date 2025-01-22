@@ -8,7 +8,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/rs/zerolog/log"
 	"github.com/t-okuji/go-huma-sqlc/db/sqlc"
 )
 
@@ -88,7 +87,6 @@ func (ar *authorRepository) UpdateAuthor(ctx context.Context, input sqlc.UpdateA
 		return sqlc.Author{}, err
 	}
 	defer tx.Rollback(ctx)
-	defer log.Info().Msg("rollback")
 
 	result, err := ar.queries.WithTx(tx).UpdateAuthor(ctx, input)
 	switch {
