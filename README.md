@@ -33,9 +33,6 @@ Open your browser at http://localhost:8080/docs
 ## Build image
 
 ```sh
-# Move directory
-$ cd app
-
 # Build
 $ docker build --target prod -t go-huma-sqlc .
 

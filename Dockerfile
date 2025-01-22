@@ -4,7 +4,7 @@ RUN go install github.com/air-verse/air@latest
 CMD ["air", "-c", ".air.toml"]
 
 FROM golang:1.23.4-alpine AS builder
-COPY . /app
+COPY ./app /app
 WORKDIR /app
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/app ./cmd/app
 
